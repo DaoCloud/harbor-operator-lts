@@ -137,7 +137,7 @@ $(CHARTS_DIRECTORY)/postgres-operator/values.yaml:
 
 helm-postgres-operator: helm $(CHARTS_DIRECTORY)/postgres-operator/values.yaml
 	$(MAKE) kube-namespace
-	$(HELM) repo add zalando https://opensource.zalando.com/postgres-operator/charts/postgres-operator
+	$(HELM) repo add zalando https://raw.githubusercontent.com/zalando/postgres-operator/v1.6.3/charts/postgres-operator
 	$(HELM) repo update
 	$(HELM) upgrade --namespace "$(NAMESPACE)" --install postgres-operator zalando/postgres-operator --version 1.6.3 -f $(CHARTS_DIRECTORY)/postgres-operator/values.yaml
 
@@ -608,7 +608,7 @@ kubebuilder:
 $(KUBEBUILDER):
 	$(MAKE) $(BIN)
 	# https://kubebuilder.io/quick-start.html#installation
-	curl -fsSL --retry 5 --retry-all-errors "https://github.com/kubernetes-sigs/kubebuilder/releases/download/v$(KUBEBUIDER_VERSION)/kubebuilder_$$(go env GOOS)_$$(go env GOARCH)" --output $(KUBEBUILDER)
+	curl -fsSL --retry 10 --retry-delay 15 --retry-all-errors "https://github.com/kubernetes-sigs/kubebuilder/releases/download/v$(KUBEBUIDER_VERSION)/kubebuilder_$$(go env GOOS)_$$(go env GOARCH)" --output $(KUBEBUILDER)
 
 	chmod u+x $(KUBEBUILDER)
 
@@ -627,7 +627,7 @@ kustomize:
 $(KUSTOMIZE):
 	$(MAKE) $(BIN)
 	# https://kubectl.docs.kubernetes.io/installation/kustomize/binaries/
-	curl -fsSL --retry 5 --retry-all-errors "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v$(KUSTOMIZE_VERSION)/kustomize_v$(KUSTOMIZE_VERSION)_$$(go env GOOS)_$$(go env GOARCH).tar.gz" \
+	curl -fsSL --retry 10 --retry-delay 15 --retry-all-errors "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v$(KUSTOMIZE_VERSION)/kustomize_v$(KUSTOMIZE_VERSION)_$$(go env GOOS)_$$(go env GOARCH).tar.gz" \
 		| tar -xzC '$(BIN)' kustomize
 
 # find helm or raise an error
@@ -706,7 +706,7 @@ hadolint:
 $(HADOLINT):
 	$(MAKE) $(BIN)
 	# https://github.com/hadolint/hadolint/releases/
-	curl -fsSL --retry 5 --retry-all-errors "https://github.com/hadolint/hadolint/releases/download/v$(HADOLINT_VERSION)/hadolint-$$(uname -s)-x86_64" \
+	curl -fsSL --retry 10 --retry-delay 15 --retry-all-errors "https://github.com/hadolint/hadolint/releases/download/v$(HADOLINT_VERSION)/hadolint-$$(uname -s)-x86_64" \
 		> $(HADOLINT)
 	chmod u+x $(HADOLINT)
 
@@ -722,7 +722,7 @@ kind:
 
 $(KIND):
 	$(MAKE) $(BIN)
-	curl -fL --retry 5 --retry-all-errors -o $(KIND) "https://kind.sigs.k8s.io/dl/v$(KIND_VERSION)/kind-$$(go env GOOS)-$$(go env GOARCH)"
+	curl -fL --retry 10 --retry-delay 15 --retry-all-errors -o $(KIND) "https://kind.sigs.k8s.io/dl/v$(KIND_VERSION)/kind-$$(go env GOOS)-$$(go env GOARCH)"
 	chmod u+x $(KIND)
 
 # find or download helm-docs
@@ -740,5 +740,5 @@ helm-docs:
 $(HELM_DOCS):
 	$(MAKE) $(BIN)
 	# https://github.com/norwoodj/helm-docs/tree/master#installation
-	curl -fsSL --retry 5 --retry-all-errors "https://github.com/norwoodj/helm-docs/releases/download/v$(HELM_DOCS_VERSION)/helm-docs_$(HELM_DOCS_VERSION)_$$(uname -s)_x86_64.tar.gz" \
+	curl -fsSL --retry 10 --retry-delay 15 --retry-all-errors "https://github.com/norwoodj/helm-docs/releases/download/v$(HELM_DOCS_VERSION)/helm-docs_$(HELM_DOCS_VERSION)_$$(uname -s)_x86_64.tar.gz" \
 		| tar -xzC '$(BIN)' helm-docs
