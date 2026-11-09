@@ -530,6 +530,10 @@ clean:
 # find or download controller-gen
 # download controller-gen if necessary
 CONTROLLER_GEN_VERSION := 0.9.2
+# controller-gen 0.9.2 pulls x/tools from 2022, whose package loader crashes on Go 1.22+.
+# Newer controller-gen releases change the generated CRD schemas (more required fields),
+# so keep 0.9.2 and build it against a current x/tools: the output is unchanged.
+CONTROLLER_GEN_X_TOOLS_VERSION := v0.52.0
 CONTROLLER_GEN := $(BIN)/controller-gen
 
 .PHONY: controller-gen
@@ -548,6 +552,7 @@ $(CONTROLLER_GEN):
 	cd $$CONTROLLER_GEN_TMP_DIR ;\
 	go mod init tmp ;\
 	go get sigs.k8s.io/controller-tools/cmd/controller-gen@v$(CONTROLLER_GEN_VERSION) ;\
+	go get golang.org/x/tools@$(CONTROLLER_GEN_X_TOOLS_VERSION) golang.org/x/tools/go/packages@$(CONTROLLER_GEN_X_TOOLS_VERSION) ;\
 	go build -mod=readonly -o $(CONTROLLER_GEN) sigs.k8s.io/controller-tools/cmd/controller-gen ;\
 	rm -rf $$CONTROLLER_GEN_TMP_DIR ;\
 	}
@@ -661,7 +666,8 @@ $(GORELEASER):
 
 # find or download stringer
 # download stringer if necessary
-STRINGER_VERSION := v0.1.12
+# v0.1.12 crashes on Go 1.22+; v0.52.0 writes the same lookup with a reworded bounds check.
+STRINGER_VERSION := v0.52.0
 STRINGER := $(BIN)/stringer
 
 .PHONY: stringer
