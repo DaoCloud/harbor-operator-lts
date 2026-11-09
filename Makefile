@@ -568,7 +568,7 @@ $(MARKDOWNLINT):
 	$(MAKE) $(BIN)
 	# https://github.com/igorshubovych/markdownlint-cli#installation
 	npm install markdownlint-cli@$(MARKDOWNLINT_VERSION) --no-save
-	ln -s "$$(npm bin)/markdownlint" $(MARKDOWNLINT)
+	ln -s "$$(npm root)/.bin/markdownlint" $(MARKDOWNLINT)
 
 # find or download golangci-lint
 # download golangci-lint if necessary
@@ -603,7 +603,7 @@ kubebuilder:
 $(KUBEBUILDER):
 	$(MAKE) $(BIN)
 	# https://kubebuilder.io/quick-start.html#installation
-	curl -sSL "https://github.com/kubernetes-sigs/kubebuilder/releases/download/v$(KUBEBUIDER_VERSION)/kubebuilder_$$(go env GOOS)_$$(go env GOARCH)" --output $(KUBEBUILDER)
+	curl -fsSL --retry 5 --retry-all-errors "https://github.com/kubernetes-sigs/kubebuilder/releases/download/v$(KUBEBUIDER_VERSION)/kubebuilder_$$(go env GOOS)_$$(go env GOARCH)" --output $(KUBEBUILDER)
 
 	chmod u+x $(KUBEBUILDER)
 
@@ -622,7 +622,7 @@ kustomize:
 $(KUSTOMIZE):
 	$(MAKE) $(BIN)
 	# https://kubectl.docs.kubernetes.io/installation/kustomize/binaries/
-	curl -sSL "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v$(KUSTOMIZE_VERSION)/kustomize_v$(KUSTOMIZE_VERSION)_$$(go env GOOS)_$$(go env GOARCH).tar.gz" \
+	curl -fsSL --retry 5 --retry-all-errors "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v$(KUSTOMIZE_VERSION)/kustomize_v$(KUSTOMIZE_VERSION)_$$(go env GOOS)_$$(go env GOARCH).tar.gz" \
 		| tar -xzC '$(BIN)' kustomize
 
 # find helm or raise an error
@@ -700,7 +700,7 @@ hadolint:
 $(HADOLINT):
 	$(MAKE) $(BIN)
 	# https://github.com/hadolint/hadolint/releases/
-	curl -sL "https://github.com/hadolint/hadolint/releases/download/v$(HADOLINT_VERSION)/hadolint-$$(uname -s)-x86_64" \
+	curl -fsSL --retry 5 --retry-all-errors "https://github.com/hadolint/hadolint/releases/download/v$(HADOLINT_VERSION)/hadolint-$$(uname -s)-x86_64" \
 		> $(HADOLINT)
 	chmod u+x $(HADOLINT)
 
@@ -716,7 +716,7 @@ kind:
 
 $(KIND):
 	$(MAKE) $(BIN)
-	curl -Lo $(KIND) "https://kind.sigs.k8s.io/dl/v$(KIND_VERSION)/kind-$$(go env GOOS)-$$(go env GOARCH)"
+	curl -fL --retry 5 --retry-all-errors -o $(KIND) "https://kind.sigs.k8s.io/dl/v$(KIND_VERSION)/kind-$$(go env GOOS)-$$(go env GOARCH)"
 	chmod u+x $(KIND)
 
 # find or download helm-docs
@@ -734,5 +734,5 @@ helm-docs:
 $(HELM_DOCS):
 	$(MAKE) $(BIN)
 	# https://github.com/norwoodj/helm-docs/tree/master#installation
-	curl -sL "https://github.com/norwoodj/helm-docs/releases/download/v$(HELM_DOCS_VERSION)/helm-docs_$(HELM_DOCS_VERSION)_$$(uname -s)_x86_64.tar.gz" \
+	curl -fsSL --retry 5 --retry-all-errors "https://github.com/norwoodj/helm-docs/releases/download/v$(HELM_DOCS_VERSION)/helm-docs_$(HELM_DOCS_VERSION)_$$(uname -s)_x86_64.tar.gz" \
 		| tar -xzC '$(BIN)' helm-docs
