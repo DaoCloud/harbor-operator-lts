@@ -122,7 +122,8 @@ helm-minio-operator: helm
 	$(MAKE) kube-namespace
 	$(HELM) repo add minio https://operator.min.io/
 	$(HELM) repo update
-	$(HELM) upgrade --namespace "$(NAMESPACE)" --install minio-operator minio/operator --version 4.4.28
+	$(HELM) upgrade --namespace "$(NAMESPACE)" --install minio-operator minio/operator --version 4.4.28 \
+		--set console.image.repository=quay.io/minio/console # docker.io/minio/console is gone
 
 helm-redis-operator: helm
 	$(MAKE) kube-namespace

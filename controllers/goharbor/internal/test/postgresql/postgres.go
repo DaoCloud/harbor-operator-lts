@@ -103,7 +103,7 @@ func New(ctx context.Context, ns string, databases ...string) harbormetav1.Postg
 					},
 					Containers: []corev1.Container{{
 						Name:  "database",
-						Image: "bitnami/postgresql:13.6.0",
+						Image: "bitnamilegacy/postgresql:13.6.0", // bitnami/ images left Docker Hub in 2025
 						Env: []corev1.EnvVar{
 							{
 								Name: "POSTGRESQL_PASSWORD",
