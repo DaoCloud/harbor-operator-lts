@@ -103,7 +103,8 @@ jobs:
       - name: Install CertManager
         run: |
           # Try the recet way to install crd or fallback to the old one
-          kubectl apply -f "https://github.com/cert-manager/cert-manager/releases/download/v1.7.3/cert-manager.yaml"
+          curl -fsSL --retry 10 --retry-delay 15 --retry-all-errors "https://github.com/cert-manager/cert-manager/releases/download/v1.7.3/cert-manager.yaml" -o /tmp/remote-manifest.yaml
+          kubectl apply -f /tmp/remote-manifest.yaml
           sleep 5
           time kubectl -n cert-manager wait --for=condition=Available deployment --all --timeout 300s
 
@@ -189,18 +190,21 @@ jobs:
 
     - name: Install CertManager v${{ matrix.certManager }}
       run: |
-        kubectl apply -f "https://github.com/cert-manager/cert-manager/releases/download/v${{ matrix.certManager }}/cert-manager.yaml"
+        curl -fsSL --retry 10 --retry-delay 15 --retry-all-errors "https://github.com/cert-manager/cert-manager/releases/download/v${{ matrix.certManager }}/cert-manager.yaml" -o /tmp/remote-manifest.yaml
+        kubectl apply -f /tmp/remote-manifest.yaml
         sleep 5
         time kubectl -n cert-manager wait --for=condition=Available deployment --all --timeout 300s
 
     - name: Install Ingress
       run: |
-        kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v${{ matrix.ingress }}/deploy/static/provider/kind/deploy.yaml
+        curl -fsSL --retry 10 --retry-delay 15 --retry-all-errors "https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v${{ matrix.ingress }}/deploy/static/provider/kind/deploy.yaml" -o /tmp/remote-manifest.yaml
+        kubectl apply -f /tmp/remote-manifest.yaml
         time kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=300s
 
     - name: build harbor-operator
       run: |
-        make generate docker-build IMG=${dockerImage} GIT_COMMIT=${{ github.sha }}
+        # The helm chart is not used here; skip packaging it (helm-docs, chart dependencies).
+        make go-generate docker-build IMG=${dockerImage} GIT_COMMIT=${{ github.sha }}
         kind load docker-image ${dockerImage} --name harbor
 
     - name: install harbor-operator
@@ -400,13 +404,15 @@ jobs:
 
       - name: Install CertManager v${{ matrix.certManager }}
         run: |
-          kubectl apply -f "https://github.com/cert-manager/cert-manager/releases/download/v${{ matrix.certManager }}/cert-manager.yaml"
+          curl -fsSL --retry 10 --retry-delay 15 --retry-all-errors "https://github.com/cert-manager/cert-manager/releases/download/v${{ matrix.certManager }}/cert-manager.yaml" -o /tmp/remote-manifest.yaml
+          kubectl apply -f /tmp/remote-manifest.yaml
           sleep 5
           time kubectl -n cert-manager wait --for=condition=Available deployment --all --timeout 300s
 
       - name: Install Contour
         run: |
-          kubectl apply -f https://github.com/projectcontour/contour/raw/v${{ matrix.contour }}/examples/render/contour.yaml
+          curl -fsSL --retry 10 --retry-delay 15 --retry-all-errors "https://github.com/projectcontour/contour/raw/v${{ matrix.contour }}/examples/render/contour.yaml" -o /tmp/remote-manifest.yaml
+          kubectl apply -f /tmp/remote-manifest.yaml
           sleep 5
           kubectl patch daemonsets -n projectcontour envoy -p '{"spec":{"template":{"spec":{"nodeSelector":{"ingress-ready":"true"},"tolerations":[{"key":"node-role.kubernetes.io/master","operator":"Equal","effect":"NoSchedule"}, {"key":"node-role.kubernetes.io/control-plane","operator":"Equal","effect":"NoSchedule"}]}}}}'
           sleep 5
@@ -610,13 +616,15 @@ jobs:
 
       - name: Install CertManager v${{ matrix.certManager }}
         run: |
-          kubectl apply -f "https://github.com/cert-manager/cert-manager/releases/download/v${{ matrix.certManager }}/cert-manager.yaml"
+          curl -fsSL --retry 10 --retry-delay 15 --retry-all-errors "https://github.com/cert-manager/cert-manager/releases/download/v${{ matrix.certManager }}/cert-manager.yaml" -o /tmp/remote-manifest.yaml
+          kubectl apply -f /tmp/remote-manifest.yaml
           sleep 5
           time kubectl -n cert-manager wait --for=condition=Available deployment --all --timeout 300s
 
       - name: Install Ingress
         run: |
-          kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v${{ matrix.ingress }}/deploy/static/provider/kind/deploy.yaml
+          curl -fsSL --retry 10 --retry-delay 15 --retry-all-errors "https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v${{ matrix.ingress }}/deploy/static/provider/kind/deploy.yaml" -o /tmp/remote-manifest.yaml
+          kubectl apply -f /tmp/remote-manifest.yaml
           time kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=300s
 
       - name: build harbor-operator

@@ -4,7 +4,11 @@ sleep 10
 kubectl -n ${NAMESPACE:-default} wait --for=condition=Ready -l job-type!=minio-init pod --all --timeout 600s
 
 
-git clone https://github.com/goharbor/harbor -b release-2.6.0
+# Harbor's release-2.6.0 API tests no longer set up (Python packages drifted, test charts
+# left GCS). The dce-v2.6.3 branch of the fork carries the fixes used by the Harbor CI.
+git clone https://github.com/Phil-OSophy-42/harbor -b dce-v2.6.3
+# serve stand-in test charts on this host and point the tests at them
+bash harbor/tests/ci/serve_test_charts.sh "$(hostname -I | awk '{print $1}')"
 
 # run 'df -h' before test
 sed -i '15i\    ${dfout}=  Run  df -h\n    Log To Console  ${dfout}' harbor/tests/resources/APITest-Util.robot
