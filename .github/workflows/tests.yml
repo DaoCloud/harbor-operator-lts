@@ -4,6 +4,8 @@ on:
   push:
     branches:
     - dce-v1.4.0-rc1
+    tags:
+    - 'v*'
   pull_request:
     branches:
     - dce-*
@@ -35,16 +37,19 @@ jobs:
     - name: build
       run: |
         set -e
+        # A release is a pushed tag (e.g. v1.4.0-rc1-1); anything else is a dev build.
+        if [ "$GITHUB_REF_TYPE" = tag ]; then VERSION=$GITHUB_REF_NAME; else VERSION=dev-${GITHUB_SHA::8}; fi
+        echo "version: $VERSION"
         mkdir -p images
         for arch in amd64 arm64; do
           mkdir -p dist/harbor-operator_linux_$arch
           CGO_ENABLED=0 GOOS=linux GOARCH=$arch go build \
             -o dist/harbor-operator_linux_$arch/manager \
-            -ldflags "-X main.version=v1.4.0-rc1-1 -X main.gitCommit=${GITHUB_SHA::8}" *.go
+            -ldflags "-X main.version=$VERSION -X main.gitCommit=${GITHUB_SHA::8}" *.go
           file dist/harbor-operator_linux_$arch/manager
           docker buildx build --platform linux/$arch --load -f Dockerfile \
-            -t goharbor/harbor-operator:v1.4.0-rc1-1-$arch dist/harbor-operator_linux_$arch
-          docker save goharbor/harbor-operator:v1.4.0-rc1-1-$arch -o images/harbor-operator-$arch.tar
+            -t goharbor/harbor-operator:$VERSION-$arch dist/harbor-operator_linux_$arch
+          docker save goharbor/harbor-operator:$VERSION-$arch -o images/harbor-operator-$arch.tar
         done
     - name: scan
       run: |
