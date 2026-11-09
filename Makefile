@@ -449,19 +449,25 @@ sample-%: kustomize postgresql redis sample-github-secret
 .PHONY: install-dependencies
 install-dependencies: certmanager postgresql redis ingress
 
+# Bitnami dropped these chart versions from its main index and their images from bitnami/ (2025);
+# the archive index still serves the charts and bitnamilegacy/ still has the images.
+BITNAMI_CHARTS_REPO := https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami
+
 .PHONY: redis
 redis: helm sample-redis
-	$(HELM) repo add bitnami https://charts.bitnami.com/bitnami
+	$(HELM) repo add bitnami $(BITNAMI_CHARTS_REPO)
 	$(HELM) upgrade --install harbor-redis bitnami/redis --version 15.7.0 \
 		--set-string auth.existingSecret=harbor-redis \
-		--set-string auth.existingSecretPasswordKey=redis-password
+		--set-string auth.existingSecretPasswordKey=redis-password \
+		--set image.repository=bitnamilegacy/redis --set-string image.tag=6.2.6
 
 .PHONY: postgresql
 postgresql: helm sample-database
-	$(HELM) repo add bitnami https://charts.bitnami.com/bitnami
+	$(HELM) repo add bitnami $(BITNAMI_CHARTS_REPO)
 	$(HELM) upgrade --install harbor-database bitnami/postgresql --version 10.14.3 \
 		--set-string initdbScriptsConfigMap=harbor-init-db \
-		--set-string existingSecret=harbor-database-password
+		--set-string existingSecret=harbor-database-password \
+		--set image.repository=bitnamilegacy/postgresql --set-string image.tag=11.14.0
 
 .PHONY: kube-namespace
 kube-namespace:
