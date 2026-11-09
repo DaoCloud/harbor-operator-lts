@@ -40,11 +40,11 @@ jobs:
           mkdir -p dist/harbor-operator_linux_$arch
           CGO_ENABLED=0 GOOS=linux GOARCH=$arch go build \
             -o dist/harbor-operator_linux_$arch/manager \
-            -ldflags "-X main.version=v1.4.0-rc1 -X main.gitCommit=${GITHUB_SHA::8}" *.go
+            -ldflags "-X main.version=v1.4.0-rc1-1 -X main.gitCommit=${GITHUB_SHA::8}" *.go
           file dist/harbor-operator_linux_$arch/manager
           docker buildx build --platform linux/$arch --load -f Dockerfile \
-            -t goharbor/harbor-operator:dev-$arch dist/harbor-operator_linux_$arch
-          docker save goharbor/harbor-operator:dev-$arch -o images/harbor-operator-$arch.tar
+            -t goharbor/harbor-operator:v1.4.0-rc1-1-$arch dist/harbor-operator_linux_$arch
+          docker save goharbor/harbor-operator:v1.4.0-rc1-1-$arch -o images/harbor-operator-$arch.tar
         done
     - name: scan
       run: |
