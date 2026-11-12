@@ -966,6 +966,7 @@ jobs:
       run: |
         set -e
         VERSION=$GITHUB_REF_NAME
+        mkdir -p /tmp/chart-check
         helm pull $CHART_REPO/harbor-operator --version ${VERSION#v} -d /tmp/chart-check
         tar -xzOf /tmp/chart-check/harbor-operator-${VERSION#v}.tgz harbor-operator/Chart.yaml | grep -x "version: ${VERSION#v}"
         helm show values /tmp/chart-check/harbor-operator-${VERSION#v}.tgz | grep -x "  tag: \"$VERSION\""
