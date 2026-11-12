@@ -877,8 +877,9 @@ jobs:
     - run: make md-lint
 
   release:
-    # A pushed tag (e.g. v1.4.1) is a release: publish the multi-arch image once every test job passed.
-    name: Publish release image to ghcr
+    # A pushed tag (e.g. v1.4.1) is a release: once every test job passed, publish the multi-arch
+    # image and the Helm chart (OCI) that deploys it.
+    name: Publish release image and chart to ghcr
     if: startsWith(github.ref, 'refs/tags/v')
     needs: [docker-build-test, images, docker-lint, go-lint, go-dependencies, check-generated-files, go-tests, harbor-tests, harbor-contour, chart-tests, crd-kubernetes-resources, operator-kubernetes-resources, kubernetes-resources, md-lint]
     runs-on: ubuntu-24.04
@@ -887,6 +888,7 @@ jobs:
       packages: write
     env:
       IMAGE: ghcr.io/daocloud/harbor-operator-lts/harbor-operator
+      CHART_REPO: oci://ghcr.io/daocloud/charts
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-go@v5
@@ -933,3 +935,28 @@ jobs:
           docker run --rm -e TRIVY_USERNAME -e TRIVY_PASSWORD aquasec/trivy:0.76.2 image --quiet \
             --platform linux/$arch --scanners vuln --severity CRITICAL --exit-code 1 $IMAGE:$GITHUB_REF_NAME
         done
+    - uses: azure/setup-helm@v4
+      with:
+        version: v3.15.4
+    - name: package and push chart
+      run: |
+        set -e
+        VERSION=$GITHUB_REF_NAME
+        VALUES=charts/harbor-operator/values.yaml
+        # Point the chart at the image published above.
+        sed -i -E "1,10s#^(  repository: ).*#\1$IMAGE#; 1,10s#^(  tag: ).*#\1\"$VERSION\"#" $VALUES
+        grep -q "^  repository: $IMAGE$" $VALUES && grep -q "^  tag: \"$VERSION\"$" $VALUES
+        helm repo add minio https://operator.min.io/
+        helm repo add spotahome https://spotahome.github.io/redis-operator
+        helm repo add zalando https://raw.githubusercontent.com/zalando/postgres-operator/v1.6.3/charts/postgres-operator
+        helm dependency build charts/harbor-operator
+        helm package charts/harbor-operator --version ${VERSION#v} --app-version $VERSION -d dist/chart
+        echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u ${{ github.actor }} --password-stdin
+        helm push dist/chart/harbor-operator-${VERSION#v}.tgz $CHART_REPO
+    - name: verify chart
+      run: |
+        set -e
+        VERSION=$GITHUB_REF_NAME
+        helm pull $CHART_REPO/harbor-operator --version ${VERSION#v} -d /tmp/chart-check
+        tar -xzOf /tmp/chart-check/harbor-operator-${VERSION#v}.tgz harbor-operator/Chart.yaml | grep -x "version: ${VERSION#v}"
+        helm show values /tmp/chart-check/harbor-operator-${VERSION#v}.tgz | grep -x "  tag: \"$VERSION\""
