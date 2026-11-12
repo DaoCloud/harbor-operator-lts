@@ -3,10 +3,12 @@ name: Tests
 on:
   push:
     branches:
-    - dce-v1.4.0-rc1
+    - main
+    - release-*
   pull_request:
     branches:
-    - dce-*
+    - main
+    - release-*
 
 jobs:
   # Dockerfile tests
