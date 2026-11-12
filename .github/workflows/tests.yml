@@ -875,3 +875,61 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - run: make md-lint
+
+  release:
+    # A pushed tag (e.g. v1.4.1) is a release: publish the multi-arch image once every test job passed.
+    name: Publish release image to ghcr
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [docker-build-test, images, docker-lint, go-lint, go-dependencies, check-generated-files, go-tests, harbor-tests, harbor-contour, chart-tests, crd-kubernetes-resources, operator-kubernetes-resources, kubernetes-resources, md-lint]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    env:
+      IMAGE: ghcr.io/daocloud/harbor-operator-lts/harbor-operator
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
+      with:
+        cache: false
+        go-version: '1.27.3'
+    - uses: docker/setup-buildx-action@v3
+    - uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: build and push
+      run: |
+        set -e
+        VERSION=$GITHUB_REF_NAME
+        for arch in amd64 arm64; do
+          CGO_ENABLED=0 GOOS=linux GOARCH=$arch go build \
+            -o dist/linux_$arch/manager \
+            -ldflags "-X main.version=$VERSION -X main.gitCommit=${GITHUB_SHA::8}" *.go
+        done
+        # Same image as ./Dockerfile; the binary is cross-compiled above, so no emulation is needed.
+        cat > dist/Dockerfile <<'DOCKERFILE'
+        FROM gcr.io/distroless/static:nonroot
+        ARG TARGETARCH
+        WORKDIR /
+        COPY linux_${TARGETARCH}/manager .
+        USER nonroot:nonroot
+        ENTRYPOINT ["/manager"]
+        DOCKERFILE
+        docker buildx build --platform linux/amd64,linux/arm64 --push \
+          --label org.opencontainers.image.source=https://github.com/${{ github.repository }} \
+          --label org.opencontainers.image.revision=$GITHUB_SHA \
+          --label org.opencontainers.image.version=$VERSION \
+          -t $IMAGE:$VERSION dist
+    - name: verify
+      env:
+        TRIVY_USERNAME: ${{ github.actor }}
+        TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        set -e
+        docker buildx imagetools inspect $IMAGE:$GITHUB_REF_NAME
+        for arch in amd64 arm64; do
+          docker run --rm -e TRIVY_USERNAME -e TRIVY_PASSWORD aquasec/trivy:0.76.2 image --quiet \
+            --platform linux/$arch --scanners vuln --severity CRITICAL --exit-code 1 $IMAGE:$GITHUB_REF_NAME
+        done
