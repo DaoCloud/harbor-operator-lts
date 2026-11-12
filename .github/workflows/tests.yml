@@ -179,6 +179,8 @@ jobs:
           path: /tmp/logs
 
   harbor-tests:
+    # Release tags skip the Kubernetes/cert-manager matrix; branches and PRs still run it.
+    if: github.ref_type != 'tag'
     runs-on: ubuntu-24.04
     name: K8S v${{ matrix.k8sVersion }} (CM v${{ matrix.certManager }} ${{ matrix.samples }})
     env:
@@ -402,6 +404,8 @@ jobs:
         kubectl logs -n "${operatorNamespace}" -l 'control-plane=harbor-operator' --all-containers --tail=1000
 
   harbor-contour:
+    # Release tags skip the Kubernetes/cert-manager matrix; branches and PRs still run it.
+    if: github.ref_type != 'tag'
     runs-on: ubuntu-24.04
     name: contour K8S v${{ matrix.k8sVersion }} (CM v${{ matrix.certManager }} ${{ matrix.samples }})
     env:
@@ -622,6 +626,8 @@ jobs:
           kubectl logs -n "${operatorNamespace}" -l 'control-plane=harbor-operator' --all-containers --tail=1000
 
   chart-tests:
+    # Release tags skip the Kubernetes/cert-manager matrix; branches and PRs still run it.
+    if: github.ref_type != 'tag'
     runs-on: ubuntu-24.04
     name: chart K8S v${{ matrix.k8sVersion }} (CM v${{ matrix.certManager }})
     env:
@@ -851,6 +857,8 @@ jobs:
         kubectl-version: 'v1.24.17'
 
   kubernetes-resources:
+    # Release tags skip the Kubernetes/cert-manager matrix; branches and PRs still run it.
+    if: github.ref_type != 'tag'
     runs-on: ubuntu-24.04
     name: 'kubernetes_resources: ./config/samples/${{ matrix.path }}'
     strategy:
@@ -877,11 +885,12 @@ jobs:
     - run: make md-lint
 
   release:
-    # A pushed tag (e.g. v1.4.1) is a release: once every test job passed, publish the multi-arch
-    # image and the Helm chart (OCI) that deploys it.
+    # A pushed tag (e.g. v1.4.1) is a release: once the build, lint, unit and manifest checks pass,
+    # publish the multi-arch image and the Helm chart (OCI) that deploys it. The Kubernetes matrix
+    # runs on the branch before tagging.
     name: Publish release image and chart to ghcr
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: [docker-build-test, images, docker-lint, go-lint, go-dependencies, check-generated-files, go-tests, harbor-tests, harbor-contour, chart-tests, crd-kubernetes-resources, operator-kubernetes-resources, kubernetes-resources, md-lint]
+    needs: [docker-build-test, images, docker-lint, go-lint, go-dependencies, check-generated-files, go-tests, crd-kubernetes-resources, operator-kubernetes-resources, md-lint]
     runs-on: ubuntu-24.04
     permissions:
       contents: read
