@@ -22,7 +22,6 @@ spec:
     strategy: Webhook
     webhook:
       clientConfig:
-        caBundle: Cg==
         service:
           name: webhook-service
           namespace: harbor-operator-ns
@@ -4423,7 +4422,6 @@ spec:
     strategy: Webhook
     webhook:
       clientConfig:
-        caBundle: Cg==
         service:
           name: webhook-service
           namespace: harbor-operator-ns
@@ -5653,7 +5651,6 @@ spec:
     strategy: Webhook
     webhook:
       clientConfig:
-        caBundle: Cg==
         service:
           name: webhook-service
           namespace: harbor-operator-ns
@@ -6395,7 +6392,6 @@ spec:
     strategy: Webhook
     webhook:
       clientConfig:
-        caBundle: Cg==
         service:
           name: webhook-service
           namespace: harbor-operator-ns
@@ -12301,7 +12297,6 @@ spec:
     strategy: Webhook
     webhook:
       clientConfig:
-        caBundle: Cg==
         service:
           name: webhook-service
           namespace: harbor-operator-ns
@@ -16565,7 +16560,6 @@ spec:
     strategy: Webhook
     webhook:
       clientConfig:
-        caBundle: Cg==
         service:
           name: webhook-service
           namespace: harbor-operator-ns
@@ -25688,7 +25682,6 @@ spec:
     strategy: Webhook
     webhook:
       clientConfig:
-        caBundle: Cg==
         service:
           name: webhook-service
           namespace: harbor-operator-ns
@@ -26405,7 +26398,6 @@ spec:
     strategy: Webhook
     webhook:
       clientConfig:
-        caBundle: Cg==
         service:
           name: webhook-service
           namespace: harbor-operator-ns
@@ -27034,7 +27026,6 @@ spec:
     strategy: Webhook
     webhook:
       clientConfig:
-        caBundle: Cg==
         service:
           name: webhook-service
           namespace: harbor-operator-ns
@@ -40016,7 +40007,6 @@ spec:
     strategy: Webhook
     webhook:
       clientConfig:
-        caBundle: Cg==
         service:
           name: webhook-service
           namespace: harbor-operator-ns
@@ -45460,7 +45450,6 @@ spec:
     strategy: Webhook
     webhook:
       clientConfig:
-        caBundle: Cg==
         service:
           name: webhook-service
           namespace: harbor-operator-ns
@@ -54856,7 +54845,6 @@ spec:
     strategy: Webhook
     webhook:
       clientConfig:
-        caBundle: Cg==
         service:
           name: webhook-service
           namespace: harbor-operator-ns

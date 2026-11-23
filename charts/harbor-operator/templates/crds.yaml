@@ -12,7 +12,6 @@ spec:
     strategy: Webhook
     webhook:
       clientConfig:
-        caBundle: Cg==
         service:
           name: {{ include "chart.fullname" . | quote }}
           namespace: {{ .Release.Namespace }}
@@ -4410,7 +4409,6 @@ spec:
     strategy: Webhook
     webhook:
       clientConfig:
-        caBundle: Cg==
         service:
           name: {{ include "chart.fullname" . | quote }}
           namespace: {{ .Release.Namespace }}
@@ -5637,7 +5635,6 @@ spec:
     strategy: Webhook
     webhook:
       clientConfig:
-        caBundle: Cg==
         service:
           name: {{ include "chart.fullname" . | quote }}
           namespace: {{ .Release.Namespace }}
@@ -6376,7 +6373,6 @@ spec:
     strategy: Webhook
     webhook:
       clientConfig:
-        caBundle: Cg==
         service:
           name: {{ include "chart.fullname" . | quote }}
           namespace: {{ .Release.Namespace }}
@@ -12277,7 +12273,6 @@ spec:
     strategy: Webhook
     webhook:
       clientConfig:
-        caBundle: Cg==
         service:
           name: {{ include "chart.fullname" . | quote }}
           namespace: {{ .Release.Namespace }}
@@ -16536,7 +16531,6 @@ spec:
     strategy: Webhook
     webhook:
       clientConfig:
-        caBundle: Cg==
         service:
           name: {{ include "chart.fullname" . | quote }}
           namespace: {{ .Release.Namespace }}
@@ -25656,7 +25650,6 @@ spec:
     strategy: Webhook
     webhook:
       clientConfig:
-        caBundle: Cg==
         service:
           name: {{ include "chart.fullname" . | quote }}
           namespace: {{ .Release.Namespace }}
@@ -26370,7 +26363,6 @@ spec:
     strategy: Webhook
     webhook:
       clientConfig:
-        caBundle: Cg==
         service:
           name: {{ include "chart.fullname" . | quote }}
           namespace: {{ .Release.Namespace }}
@@ -26996,7 +26988,6 @@ spec:
     strategy: Webhook
     webhook:
       clientConfig:
-        caBundle: Cg==
         service:
           name: {{ include "chart.fullname" . | quote }}
           namespace: {{ .Release.Namespace }}
@@ -27573,7 +27564,6 @@ spec:
     strategy: Webhook
     webhook:
       clientConfig:
-        caBundle: Cg==
         service:
           name: {{ include "chart.fullname" . | quote }}
           namespace: {{ .Release.Namespace }}
@@ -33014,7 +33004,6 @@ spec:
     strategy: Webhook
     webhook:
       clientConfig:
-        caBundle: Cg==
         service:
           name: {{ include "chart.fullname" . | quote }}
           namespace: {{ .Release.Namespace }}
@@ -33532,7 +33521,6 @@ spec:
     strategy: Webhook
     webhook:
       clientConfig:
-        caBundle: Cg==
         service:
           name: {{ include "chart.fullname" . | quote }}
           namespace: {{ .Release.Namespace }}
