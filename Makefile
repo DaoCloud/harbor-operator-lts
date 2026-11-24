@@ -196,7 +196,9 @@ config/rbac: controller-gen $(GO4CONTROLLERGEN_SOURCES)
 	touch "$@"
 
 config/crd/bases: controller-gen $(GO4CONTROLLERGEN_SOURCES)
-	$(CONTROLLER_GEN) crd:crdVersions="v1" output:artifacts:config="$@" paths="./..."
+	# maxDescLen=0 drops the field descriptions from the CRD schemas. With them the Helm release record
+	# (the chart plus the rendered manifest) is within a few KB of the 1 MiB limit of a Secret.
+	$(CONTROLLER_GEN) crd:crdVersions="v1",maxDescLen=0 output:artifacts:config="$@" paths="./..."
 	touch "$@"
 
 .PHONY: generate
